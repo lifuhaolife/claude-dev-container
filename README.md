@@ -101,7 +101,7 @@ chmod +x create-devcontainer.sh
     "HTTPS_PROXY": "http://host.docker.internal:7890"
   },
   "mounts": [
-    "source=C:\\Users\\lenovo\\.claude,target=/home/vscode/.claude,type=bind"
+    "source=${env:USERPROFILE}\\.claude,target=/home/vscode/.claude,type=bind"
   ]
 }
 ```

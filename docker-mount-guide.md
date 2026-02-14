@@ -16,7 +16,7 @@ Windows下Docker文件挂载性能较差，特别是当项目文件在 `/mnt/c/`
 mkdir -p ~/projects/claude-dev-container
 
 # 克隆或复制项目到WSL2
-cp -r /mnt/d/Users/lenovo/projects/claude/aiaskdemo ~/projects/claude-dev-container
+cp -r /mnt/c/Users/$USER/projects/claude/aiaskdemo ~/projects/claude-dev-container
 ```
 
 #### 在VS Code中打开
@@ -39,7 +39,7 @@ cp -r /mnt/d/Users/lenovo/projects/claude/aiaskdemo ~/projects/claude-dev-contai
   "workspaceMount": "source=${localWorkspaceFolder},target=/workspaces/${localWorkspaceFolderBasename},type=bind,consistency=cached",
   "workspaceFolder": "/workspaces/${localWorkspaceFolderBasename}",
   "mounts": [
-    "source=C:\\Users\\lenovo\\.claude,target=/home/vscode/.claude,type=bind"
+    "source=${env:USERPROFILE}\\.claude,target=/home/vscode/.claude,type=bind"
   ]
 }
 ```

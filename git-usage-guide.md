@@ -26,7 +26,7 @@ git config --global difftool.vscode.cmd 'code --wait --diff $LOCAL $REMOTE'
 ```json
 {
   "mounts": [
-    "source=C:\\Users\\lenovo\\.ssh,target=/home/vscode/.ssh,type=bind,readonly"
+    "source=${env:USERPROFILE}\\.ssh,target=/home/vscode/.ssh,type=bind,readonly"
   ]
 }
 ```
