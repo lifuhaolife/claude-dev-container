@@ -1,0 +1,18 @@
+{
+  "name": "Claude Code Dev Container",
+  "build": {
+    "dockerfile": "Dockerfile"
+  },
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "ms-azuretools.vscode-docker",
+        "github.copilot"
+      ]
+    }
+  },
+  "postCreateCommand": "git config --global init.defaultBranch main",
+  "mounts": [
+    "source=C:\\Users\\lenovo\\.claude,target=/home/vscode/.claude,type=bind"
+  ]
+}
