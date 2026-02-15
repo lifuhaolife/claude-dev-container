@@ -6,6 +6,9 @@ RUN apt-get update && apt-get install -y \
     git \
     unzip \
     wget \
+    net-tools\
+    telnet \
+    iputils-ping\
     && rm -rf /var/lib/apt/lists/*
 
 # 安装 Node.js 20.x
