@@ -1,22 +1,10 @@
-FROM mcr.microsoft.com/devcontainers/base:ubuntu
+# 使用官方 Node.js DevContainer 镜像（预装 Node.js 20 + Git）
+FROM mcr.microsoft.com/devcontainers/javascript-node:20
 
-# 安装基础工具
-RUN apt-get update && apt-get install -y \
-    curl \
-    git \
-    unzip \
-    wget \
-    net-tools\
-    telnet \
-    iputils-ping\
-    && rm -rf /var/lib/apt/lists/*
-
-# 安装 Node.js 20.x
-RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
-    && apt-get install -y nodejs
-
-# 安装 Claude Code CLI
-RUN npm install -g @anthropic-ai/claude-code
+# 使用国内 npm 镜像源加速安装
+RUN npm config set registry https://registry.npmmirror.com && \
+    npm install -g @anthropic-ai/claude-code && \
+    npm config set registry https://registry.npmjs.org
 
 # 设置默认工作目录
 WORKDIR /workspaces
