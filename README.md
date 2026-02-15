@@ -1,144 +1,64 @@
 # Claude Dev Container
 
-完整的容器化开发环境解决方案，专为Claude Code CLI设计，解决Windows环境下bash支持不友好的问题。
+可复用的容器化开发环境配置，专为 Claude Code CLI 设计。解决 Windows 环境下 bash 支持不友好的问题，在 Dev Container 中获得完整的 Linux 开发体验。
 
-## 📋 目录
+## 环境要求
 
-- [快速开始](#快速开始)
-- [核心功能](#核心功能)
-- [详细指南](#详细指南)
-- [常见问题](#常见问题)
+- Docker Desktop（启用 WSL2 后端）
+- VS Code + [Dev Containers](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers) 扩展
 
-## 🚀 快速开始
+## 快速开始
 
-### 环境要求
+### 1. 在新项目中复用
 
-- Docker Desktop 4.60+ (启用WSL2后端)
-- VS Code 1.85+
-- 至少4GB内存
+将本仓库的 `.devcontainer/` 目录复制到你的项目根目录：
 
-### 首次设置
-
-1. **构建全局镜像**
-   ```bash
-   docker build -t claude-code-global .devcontainer
-   ```
-
-2. **启动开发容器**
-   - 在VS Code中打开项目
-   - 按 `F1` → 选择 "Dev Containers: Reopen in Container"
-
-3. **验证环境**
-   ```bash
-   node --version
-   claude --version
-   ```
-
-### 新项目模板
-
-#### Windows
-```cmd
-create-devcontainer.bat D:\path\to\new-project
-```
-
-#### Linux/Mac
 ```bash
-chmod +x create-devcontainer.sh
-./create-devcontainer.sh /path/to/new-project
+cp -r /path/to/this-repo/.devcontainer /path/to/your-project/
 ```
 
-## ✨ 核心功能
+### 2. 启动容器
 
-### 1. 统一的开发环境
-- Ubuntu 24.04基础系统
-- Node.js 20.x
-- Git版本控制
-- Claude Code CLI
+在 VS Code 中打开项目，按 `F1` → 选择 **Dev Containers: Reopen in Container**。
 
-### 2. 网络代理支持
-完整支持HTTP/HTTPS代理配置，确保Claude能够访问外部服务。
+### 3. 验证环境
 
-### 3. 文件挂载优化
-优化的挂载配置，提高Windows下的文件访问性能。
-
-### 4. 组件增量扩展
-灵活的组件添加方式，支持Python、Java、Go等多种语言。
-
-### 5. Git工具集成
-完整的Git工具链，支持SSH、代理、多仓库管理等。
-
-## 📚 详细指南
-
-### [Docker网络代理配置](./docker-proxy-guide.md)
-- Docker Desktop代理设置
-- 容器内代理配置
-- Claude CLI代理配置
-
-### [Docker文件挂载优化](./docker-mount-guide.md)
-- WSL2文件系统使用
-- 挂载性能优化
-- 卷持久化配置
-
-### [容器组件增量扩展](./dockerfile-extensions.md)
-- 多语言环境配置
-- Dev Container Features使用
-- Docker Compose多容器
-
-### [Git工具使用指南](./git-usage-guide.md)
-- Git基础配置
-- SSH密钥管理
-- 常用Git操作
-
-## 🔧 配置文件说明
-
-### `.devcontainer/devcontainer.json`
-```json
-{
-  "name": "Claude Code Dev Container",
-  "image": "claude-code-global",
-  "containerEnv": {
-    "HTTP_PROXY": "http://host.docker.internal:7890",
-    "HTTPS_PROXY": "http://host.docker.internal:7890"
-  },
-  "mounts": [
-    "source=${env:USERPROFILE}\\.claude,target=/home/vscode/.claude,type=bind"
-  ]
-}
+```bash
+node --version   # Node.js 20
+claude --version # Claude Code CLI
+git --version    # Git
 ```
 
-### `.devcontainer/Dockerfile`
-```dockerfile
-FROM mcr.microsoft.com/devcontainers/base:ubuntu
+## 配置说明
 
-RUN apt-get update && apt-get install -y \
-    curl git unzip wget && rm -rf /var/lib/apt/lists/*
+### Dockerfile
 
-RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
-    && apt-get install -y nodejs
+基于 `mcr.microsoft.com/devcontainers/javascript-node:20` 官方镜像，预装：
 
-RUN npm install -g @anthropic-ai/claude-code
+- **Node.js 20** + Git
+- **Claude Code CLI**（`@anthropic-ai/claude-code`）
+- 使用国内 npm 镜像加速安装
 
-WORKDIR /workspaces
-```
+### devcontainer.json
 
-## ❓ 常见问题
+| 配置项 | 说明 |
+|--------|------|
+| `containerEnv` | 自动配置 Git 用户名和邮箱 |
+| `forwardPorts` | 转发端口 35175 |
+| `runArgs: --network=host` | 使用宿主机网络，方便代理和网络访问 |
+| `mounts` | 挂载宿主机 `~/.ssh` 到容器（只读），支持 Git SSH 认证 |
+| `postCreateCommand` | 容器创建后自动配置 Git 全局设置 |
+| `customizations.vscode` | 预装 Docker 和 Copilot 扩展，启用 Git 智能提交和自动拉取 |
 
-### Q: 如何配置网络代理？
-A: 参考 [Docker网络代理配置指南](./docker-proxy-guide.md)，在Docker Desktop和容器内分别配置。
+## 自定义
 
-### Q: 文件访问慢怎么办？
-A: 参考 [Docker文件挂载优化指南](./docker-mount-guide.md)，将项目移至WSL2文件系统。
+复用时根据需要修改 `devcontainer.json`：
 
-### Q: 如何添加Python支持？
-A: 参考 [容器组件增量扩展指南](./dockerfile-extensions.md)，使用Features或更新Dockerfile。
+- **Git 信息**：修改 `containerEnv` 中的 `GIT_AUTHOR_NAME` 和 `GIT_AUTHOR_EMAIL`
+- **SSH 路径**：如果 SSH 密钥不在默认的 `%USERPROFILE%\.ssh`，修改 `mounts` 中的 `source` 路径
+- **端口转发**：修改 `forwardPorts` 为你需要的端口
+- **VS Code 扩展**：在 `customizations.vscode.extensions` 中添加或移除扩展
 
-### Q: Git无法连接GitHub怎么办？
-A: 参考 [Git工具使用指南](./git-usage-guide.md)，配置SSH密钥或代理。
-
-## 🤝 贡献
-
-欢迎提交Issue和Pull Request！
-
-## 📄 许可证
+## 许可证
 
 MIT License
